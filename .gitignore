@@ -1,0 +1,21 @@
+node_modules/
+.next/
+.open-next/
+.wrangler/
+out/
+src/generated/
+prisma/generated/
+next-env.d.ts
+*.tsbuildinfo
+
+# secrets
+.env
+.env.*
+!.env.example
+.dev.vars
+.dev.vars.*
+.neon
+
+# misc
+npm-debug.log*
+.DS_Store
