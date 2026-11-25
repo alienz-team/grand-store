@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { useCart } from "./cart";
 import { CheckIcon, PlusIcon } from "./icons";
+import { useI18n } from "./preferences";
 
 type Props = {
   product: { id: string; title: string; finalPrice: number; imageUrl: string | null; stock: number; category: { slug: string } };
@@ -14,6 +15,7 @@ const spring = { type: "spring", stiffness: 520, damping: 16 } as const;
 
 export function AddToCartButton({ product, variant = "icon" }: Props) {
   const { add } = useCart();
+  const { L } = useI18n();
   const [added, setAdded] = useState(0); // increments per click so the pulse replays
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const soldOut = product.stock <= 0;
@@ -38,7 +40,7 @@ export function AddToCartButton({ product, variant = "icon" }: Props) {
   const done = added > 0;
   const status = (
     <span className="sr-only" aria-live="polite">
-      {done ? `تمت إضافة ${product.title} إلى السلة` : ""}
+      {done ? L(`تمت إضافة ${product.title} إلى السلة`, `${product.title} added to cart`) : ""}
     </span>
   );
 
@@ -51,7 +53,7 @@ export function AddToCartButton({ product, variant = "icon" }: Props) {
         whileHover={soldOut ? undefined : { scale: 1.02 }}
         whileTap={soldOut ? undefined : { scale: 0.96 }}
         transition={spring}
-        className={`btn w-full sm:w-auto sm:px-10 ${done ? "bg-mint text-graphite" : "btn-primary"}`}
+        className={`btn w-full sm:w-auto sm:px-10 ${done ? "bg-mint text-ink" : "btn-primary"}`}
       >
         <AnimatePresence mode="wait" initial={false}>
           <motion.span
@@ -62,12 +64,12 @@ export function AddToCartButton({ product, variant = "icon" }: Props) {
             transition={{ duration: 0.18 }}
             className="inline-flex items-center gap-2"
           >
-            {soldOut ? "نفدت الكمية" : done ? (
+            {soldOut ? L("نفدت الكمية", "Sold out") : done ? (
               <>
-                <CheckIcon /> تمت الإضافة
+                <CheckIcon /> {L("تمت الإضافة", "Added")}
               </>
             ) : (
-              "أضف إلى السلة"
+              L("أضف إلى السلة", "Add to cart")
             )}
           </motion.span>
         </AnimatePresence>
@@ -86,10 +88,10 @@ export function AddToCartButton({ product, variant = "icon" }: Props) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.2 }}
-            className="pointer-events-none absolute bottom-full left-1/2 mb-2 -translate-x-1/2 whitespace-nowrap rounded-full bg-mint px-2.5 py-1 text-xs font-bold text-graphite shadow-lg"
+            className="pointer-events-none absolute bottom-full left-1/2 mb-2 -translate-x-1/2 whitespace-nowrap rounded-full bg-mint px-2.5 py-1 text-xs font-bold text-ink shadow-lg"
             aria-hidden
           >
-            تمت الإضافة
+            {L("تمت الإضافة", "Added")}
           </motion.span>
         )}
       </AnimatePresence>
@@ -110,10 +112,10 @@ export function AddToCartButton({ product, variant = "icon" }: Props) {
         whileHover={soldOut ? undefined : { scale: 1.1 }}
         whileTap={soldOut ? undefined : { scale: 0.82 }}
         transition={spring}
-        aria-label={soldOut ? `${product.title}: نفدت الكمية` : `أضف ${product.title} إلى السلة`}
-        title={soldOut ? "نفدت الكمية" : "أضف إلى السلة"}
+        aria-label={soldOut ? L(`${product.title}: نفدت الكمية`, `${product.title}: sold out`) : L(`أضف ${product.title} إلى السلة`, `Add ${product.title} to cart`)}
+        title={soldOut ? L("نفدت الكمية", "Sold out") : L("أضف إلى السلة", "Add to cart")}
         className={`relative grid size-11 place-items-center rounded-full transition-colors disabled:bg-steel disabled:text-dim ${
-          done ? "bg-mint text-graphite" : "bg-saffron text-graphite"
+          done ? "bg-mint text-ink" : "bg-saffron text-ink"
         }`}
       >
         <AnimatePresence mode="wait" initial={false}>

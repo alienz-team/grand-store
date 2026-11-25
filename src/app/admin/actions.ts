@@ -2,20 +2,27 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { createSession, destroySession, passwordMatches, requireAdmin } from "@/lib/auth";
+import { adminConfigured, createSession, credentialsMatch, destroySession, requireAdmin } from "@/lib/auth";
 import { getDb } from "@/lib/db";
 import { STATUSES } from "@/lib/format";
+import { getI18n } from "@/lib/i18n-server";
 
-export type FormState = { error?: string; ok?: string };
+export type FormState = { error?: string; ok?: string; email?: string };
 
 /* ---------- Session ---------- */
 
 export async function login(_prev: FormState, formData: FormData): Promise<FormState> {
+  const { L } = await getI18n();
+  const email = String(formData.get("email") ?? "").trim().slice(0, 254);
   const password = String(formData.get("password") ?? "");
-  if (!password) return { error: "اكتب كلمة المرور." };
-  if (!(await passwordMatches(password))) {
+  if (!email || !password) return { error: L("اكتب البريد الإلكتروني وكلمة المرور.", "Enter your email and password."), email };
+  if (!adminConfigured()) {
+    console.error("Admin login is not configured: set ADMIN_EMAIL and ADMIN_PASSWORD.");
+    return { error: L("تسجيل الدخول غير مفعّل على الخادم.", "Sign-in is not configured on the server."), email };
+  }
+  if (!(await credentialsMatch(email, password))) {
     await new Promise((r) => setTimeout(r, 400)); // slow down guessing
-    return { error: "كلمة المرور غير صحيحة." };
+    return { error: L("البريد الإلكتروني أو كلمة المرور غير صحيحة.", "Incorrect email or password."), email };
   }
   await createSession();
   redirect("/admin");
@@ -54,31 +61,36 @@ function slugify(input: string): string {
 
 export async function saveCategory(_prev: FormState, formData: FormData): Promise<FormState> {
   await requireAdmin();
+  const { L } = await getI18n();
   const id = str(formData, "id");
   const name = str(formData, "name");
   const slug = slugify(str(formData, "slug") || name);
   const sortOrder = Math.floor(Number(str(formData, "sortOrder") || "0")) || 0;
   const imageUrl = str(formData, "imageUrl") || null;
-  if (name.length < 2) return { error: "اسم القسم قصير جدًا." };
-  if (!slug) return { error: "الرابط المختصر غير صالح." };
-  if (imageUrl && !/^https:\/\/\S+$/i.test(imageUrl)) return { error: "رابط الصورة يجب أن يبدأ بـ https://" };
+  if (name.length < 2) return { error: L("اسم القسم قصير جدًا.", "The category name is too short.") };
+  if (!slug) return { error: L("الرابط المختصر غير صالح.", "The slug is not valid.") };
+  if (imageUrl && !/^https:\/\/\S+$/i.test(imageUrl)) return { error: L("رابط الصورة يجب أن يبدأ بـ https://", "The image URL must start with https://") };
 
   const db = getDb();
   const clash = await db.category.findFirst({ where: { slug, NOT: id ? { id } : undefined }, select: { id: true } });
-  if (clash) return { error: "يوجد قسم آخر بنفس الرابط المختصر." };
+  if (clash) return { error: L("يوجد قسم آخر بنفس الرابط المختصر.", "Another category already uses this slug.") };
 
   if (id) await db.category.update({ where: { id }, data: { name, slug, sortOrder, imageUrl } });
   else await db.category.create({ data: { name, slug, sortOrder, imageUrl } });
   refreshStore();
-  return { ok: id ? "تم حفظ القسم." : "تمت إضافة القسم." };
+  return { ok: id ? L("تم حفظ القسم.", "Category saved.") : L("تمت إضافة القسم.", "Category added.") };
 }
 
 export async function deleteCategory(formData: FormData): Promise<void> {
   await requireAdmin();
+  const { L } = await getI18n();
   const id = str(formData, "id");
   const db = getDb();
   const count = await db.product.count({ where: { categoryId: id } });
-  if (count > 0) redirect(`/admin/categories?error=${encodeURIComponent("لا يمكن حذف قسم يحتوي على منتجات. انقل المنتجات أولًا.")}`);
+  if (count > 0) {
+    const msg = L("لا يمكن حذف قسم يحتوي على منتجات. انقل المنتجات أولًا.", "A category that still has products can't be deleted. Move its products first.");
+    redirect(`/admin/categories?error=${encodeURIComponent(msg)}`);
+  }
   await db.category.delete({ where: { id } });
   refreshStore();
   redirect("/admin/categories");
@@ -88,6 +100,7 @@ export async function deleteCategory(formData: FormData): Promise<void> {
 
 export async function saveProduct(_prev: FormState, formData: FormData): Promise<FormState> {
   await requireAdmin();
+  const { L } = await getI18n();
   const id = str(formData, "id");
   const title = str(formData, "title");
   const description = str(formData, "description") || null;
@@ -102,20 +115,20 @@ export async function saveProduct(_prev: FormState, formData: FormData): Promise
   const dealRaw = str(formData, "dealEndsAt");
   const dealEndsAt = dealRaw ? new Date(`${dealRaw}:00+02:00`) : null; // input is Tripoli local time
 
-  if (title.length < 2) return { error: "اكتب اسم المنتج." };
-  if (price == null || Number.isNaN(price)) return { error: "اكتب سعرًا صحيحًا." };
+  if (title.length < 2) return { error: L("اكتب اسم المنتج.", "Enter the product name.") };
+  if (price == null || Number.isNaN(price)) return { error: L("اكتب سعرًا صحيحًا.", "Enter a valid price.") };
   if (salePrice != null && (Number.isNaN(salePrice) || salePrice >= price)) {
-    return { error: "سعر التخفيض يجب أن يكون أقل من السعر الأصلي." };
+    return { error: L("سعر التخفيض يجب أن يكون أقل من السعر الأصلي.", "The sale price must be lower than the original price.") };
   }
-  if (!Number.isFinite(stock) || stock < 0) return { error: "الكمية يجب أن تكون صفرًا أو أكثر." };
+  if (!Number.isFinite(stock) || stock < 0) return { error: L("الكمية يجب أن تكون صفرًا أو أكثر.", "Stock must be zero or more.") };
   if (imageUrl && !/^https?:\/\/\S+$/i.test(imageUrl) && !imageUrl.startsWith("/")) {
-    return { error: "رابط الصورة يجب أن يبدأ بـ https://" };
+    return { error: L("رابط الصورة يجب أن يبدأ بـ https://", "The image URL must start with https://") };
   }
-  if (dealEndsAt && Number.isNaN(dealEndsAt.getTime())) return { error: "تاريخ انتهاء العرض غير صالح." };
+  if (dealEndsAt && Number.isNaN(dealEndsAt.getTime())) return { error: L("تاريخ انتهاء العرض غير صالح.", "The deal end date is not valid.") };
 
   const db = getDb();
   if (!(await db.category.findUnique({ where: { id: categoryId }, select: { id: true } }))) {
-    return { error: "اختر قسمًا." };
+    return { error: L("اختر قسمًا.", "Choose a category.") };
   }
 
   const data = { title, description, price, salePrice, badge, imageUrl, categoryId, stock, active, bestSeller, dealEndsAt };

@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { getDb } from "@/lib/db";
+import { getI18n } from "@/lib/i18n-server";
 import { CITIES } from "@/lib/site";
 
 export type CheckoutState = {
@@ -20,6 +21,7 @@ function normalizeLibyanPhone(raw: string): string | null {
 }
 
 export async function placeOrder(_prev: CheckoutState, formData: FormData): Promise<CheckoutState> {
+  const { L } = await getI18n();
   const values = {
     customerName: String(formData.get("customerName") ?? "").trim(),
     city: String(formData.get("city") ?? "").trim(),
@@ -41,13 +43,13 @@ export async function placeOrder(_prev: CheckoutState, formData: FormData): Prom
   }
 
   const fieldErrors: CheckoutState["fieldErrors"] = {};
-  if (values.customerName.length < 2 || values.customerName.length > 80) fieldErrors.customerName = "اكتب اسمك الكامل.";
-  if (!CITIES.includes(values.city)) fieldErrors.city = "اختر مدينة التوصيل.";
+  if (values.customerName.length < 2 || values.customerName.length > 80) fieldErrors.customerName = L("اكتب اسمك الكامل.", "Enter your full name.");
+  if (!CITIES.some((c) => c.ar === values.city)) fieldErrors.city = L("اختر مدينة التوصيل.", "Choose a delivery city.");
   const phone = normalizeLibyanPhone(values.phone);
-  if (!phone) fieldErrors.phone = "اكتب رقم هاتف ليبي صحيح، مثل 0915671934.";
-  if (values.address.length < 4 || values.address.length > 300) fieldErrors.address = "اكتب العنوان أو أقرب نقطة دالة.";
+  if (!phone) fieldErrors.phone = L("اكتب رقم هاتف ليبي صحيح، مثل 0915671934.", "Enter a valid Libyan phone number, e.g. 0915671934.");
+  if (values.address.length < 4 || values.address.length > 300) fieldErrors.address = L("اكتب العنوان أو أقرب نقطة دالة.", "Enter your address or nearest landmark.");
   if (values.notes.length > 500) values.notes = values.notes.slice(0, 500);
-  if (lines.length === 0) fieldErrors.items = "السلة فارغة. أضف منتجًا واحدًا على الأقل.";
+  if (lines.length === 0) fieldErrors.items = L("السلة فارغة. أضف منتجًا واحدًا على الأقل.", "Your cart is empty. Add at least one product.");
 
   if (Object.keys(fieldErrors).length > 0) return { fieldErrors, values };
 
@@ -64,7 +66,9 @@ export async function placeOrder(_prev: CheckoutState, formData: FormData): Prom
         select: { id: true, title: true, price: true, salePrice: true, stock: true },
       });
       if (products.length !== qty.size) {
-        throw new StockError("بعض المنتجات في السلة لم تعد متوفرة. حدّث السلة وحاول مجددًا.");
+        throw new StockError(
+          L("بعض المنتجات في السلة لم تعد متوفرة. حدّث السلة وحاول مجددًا.", "Some products in your cart are no longer available. Update your cart and try again."),
+        );
       }
 
       let total = 0;
@@ -82,7 +86,7 @@ export async function placeOrder(_prev: CheckoutState, formData: FormData): Prom
           where: { id: item.productId, stock: { gte: item.quantity } },
           data: { stock: { decrement: item.quantity } },
         });
-        if (res.count === 0) throw new StockError(`الكمية المطلوبة من «${item.title}» غير متوفرة حاليًا.`);
+        if (res.count === 0) throw new StockError(L(`الكمية المطلوبة من «${item.title}» غير متوفرة حاليًا.`, `The requested quantity of “${item.title}” is not available right now.`));
       }
 
       const order = await tx.order.create({
@@ -102,7 +106,7 @@ export async function placeOrder(_prev: CheckoutState, formData: FormData): Prom
   } catch (e) {
     if (e instanceof StockError) return { error: e.message, values };
     console.error("placeOrder failed", e);
-    return { error: "تعذّر حفظ الطلب الآن. حاول مرة أخرى بعد قليل.", values };
+    return { error: L("تعذّر حفظ الطلب الآن. حاول مرة أخرى بعد قليل.", "We couldn't save your order right now. Please try again shortly."), values };
   }
 
   redirect(`/order/${orderId}`);

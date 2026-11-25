@@ -49,7 +49,7 @@ export function ProductVisual({
                 "radial-gradient(60% 55% at 50% 60%, rgb(255 182 39 / 0.14), transparent 70%), repeating-linear-gradient(90deg, transparent 0 23px, rgb(255 255 255 / 0.025) 23px 24px)",
             }}
           />
-          <CategoryGlyph slug={categorySlug} className={`relative text-saffron/80 ${glyph}`} />
+          <CategoryGlyph slug={categorySlug} className={`relative text-gold/80 ${glyph}`} />
         </div>
       )}
     </div>
@@ -61,7 +61,7 @@ export function Badge({ label }: { label: string }) {
   return (
     <span
       className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold shadow-lg shadow-black/30 ${
-        isSale ? "bg-signal text-white" : "bg-saffron text-graphite"
+        isSale ? "bg-signal text-white" : "bg-saffron text-ink"
       }`}
     >
       <bdi>{label}</bdi>

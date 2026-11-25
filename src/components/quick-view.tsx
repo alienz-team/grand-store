@@ -8,9 +8,11 @@ import { formatPrice } from "@/lib/format";
 import type { ProductView } from "@/lib/types";
 import { AddToCartButton } from "./add-to-cart";
 import { CloseIcon, EyeIcon } from "./icons";
+import { useI18n } from "./preferences";
 import { Badge, ProductVisual } from "./product-bits";
 
 export function QuickViewButton({ product }: { product: ProductView }) {
+  const { lang, L } = useI18n();
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const trigger = useRef<HTMLButtonElement>(null);
@@ -37,8 +39,8 @@ export function QuickViewButton({ product }: { product: ProductView }) {
         ref={trigger}
         type="button"
         onClick={() => setOpen(true)}
-        aria-label={`عرض سريع: ${product.title}`}
-        className="grid size-10 place-items-center rounded-full bg-graphite/80 text-mist backdrop-blur transition-all duration-300 hover:bg-saffron hover:text-graphite focus-visible:opacity-100 md:translate-y-1 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100"
+        aria-label={L(`عرض سريع: ${product.title}`, `Quick view: ${product.title}`)}
+        className="grid size-10 place-items-center rounded-full bg-graphite/80 text-mist backdrop-blur transition-all duration-300 hover:bg-saffron hover:text-ink focus-visible:opacity-100 md:translate-y-1 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100"
       >
         <EyeIcon />
       </button>
@@ -49,7 +51,7 @@ export function QuickViewButton({ product }: { product: ProductView }) {
               <div className="fixed inset-0 z-50 grid place-items-center p-4" role="dialog" aria-modal="true" aria-labelledby={`qv-${product.id}`}>
                 <motion.button
                   type="button"
-                  aria-label="إغلاق"
+                  aria-label={L("إغلاق", "Close")}
                   className="absolute inset-0 bg-black/70 backdrop-blur-sm"
                   onClick={() => setOpen(false)}
                   initial={{ opacity: 0 }}
@@ -66,7 +68,7 @@ export function QuickViewButton({ product }: { product: ProductView }) {
                   <div className="relative aspect-square sm:aspect-auto">
                     <ProductVisual imageUrl={product.imageUrl} title={product.title} categorySlug={product.category.slug} size="hero" />
                     {product.badge && (
-                      <div className="absolute top-4 right-4">
+                      <div className="absolute top-4 start-4">
                         <Badge label={product.badge} />
                       </div>
                     )}
@@ -79,19 +81,19 @@ export function QuickViewButton({ product }: { product: ProductView }) {
                           {product.title}
                         </h2>
                       </div>
-                      <button type="button" onClick={() => setOpen(false)} className="-m-1 rounded-full p-2 hover:bg-steel" aria-label="إغلاق" autoFocus>
+                      <button type="button" onClick={() => setOpen(false)} className="-m-1 grid size-11 shrink-0 place-items-center rounded-full hover:bg-steel" aria-label={L("إغلاق", "Close")} autoFocus>
                         <CloseIcon />
                       </button>
                     </div>
                     <p className="flex items-baseline gap-3 font-display">
-                      <span className={`num text-3xl font-black ${onSale ? "text-signal" : "text-saffron"}`}>{formatPrice(product.finalPrice)}</span>
-                      {onSale && <s className="num text-lg text-dim">{formatPrice(product.price)}</s>}
+                      <span className={`num text-3xl font-black ${onSale ? "text-danger" : "text-gold"}`}>{formatPrice(product.finalPrice, lang)}</span>
+                      {onSale && <s className="num text-lg text-dim">{formatPrice(product.price, lang)}</s>}
                     </p>
                     {product.description && <p className="text-haze">{product.description}</p>}
                     <div className="mt-auto flex flex-col gap-3 pt-2">
                       <AddToCartButton product={product} variant="full" />
-                      <Link href={`/product/${product.id}`} className="text-center text-sm text-haze underline-offset-4 hover:text-saffron hover:underline">
-                        كل تفاصيل المنتج
+                      <Link href={`/product/${product.id}`} className="text-center text-sm text-haze underline-offset-4 hover:text-gold hover:underline">
+                        {L("كل تفاصيل المنتج", "Full product details")}
                       </Link>
                     </div>
                   </div>

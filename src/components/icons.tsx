@@ -42,7 +42,7 @@ export const EyeIcon = ({ className = "size-5" }: P) => (
   </svg>
 );
 
-export const MinusIcon =({ className = "size-4" }: P) => (
+export const MinusIcon = ({ className = "size-4" }: P) => (
   <svg viewBox="0 0 24 24" className={className} {...base} strokeWidth={2.4}>
     <path d="M5 12h14" />
   </svg>
@@ -57,6 +57,32 @@ export const CloseIcon = ({ className = "size-5" }: P) => (
 export const MenuIcon = ({ className = "size-6" }: P) => (
   <svg viewBox="0 0 24 24" className={className} {...base}>
     <path d="M4 7h16M4 12h16M4 17h10" />
+  </svg>
+);
+
+export const SunIcon = ({ className = "size-5" }: P) => (
+  <svg viewBox="0 0 24 24" className={className} {...base}>
+    <circle cx="12" cy="12" r="4" />
+    <path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4 6 18M18 6l1.4-1.4" />
+  </svg>
+);
+
+export const MoonIcon = ({ className = "size-5" }: P) => (
+  <svg viewBox="0 0 24 24" className={className} {...base}>
+    <path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5Z" />
+  </svg>
+);
+
+export const DownloadIcon = ({ className = "size-5" }: P) => (
+  <svg viewBox="0 0 24 24" className={className} {...base}>
+    <path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19.5h14" />
+  </svg>
+);
+
+/** iOS Safari's share glyph, used in the "Add to Home Screen" steps. */
+export const ShareIcon = ({ className = "size-5" }: P) => (
+  <svg viewBox="0 0 24 24" className={className} {...base}>
+    <path d="M12 3.5v11M8 7l4-3.5L16 7M8.5 10.5H6.5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-2" />
   </svg>
 );
 

@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import type { ProductView } from "@/lib/types";
 import { EASE_OUT } from "./motion";
+import { useI18n } from "./preferences";
 import { ProductCard } from "./product-card";
 
 /** Category chips that re-flow the grid with layout animation. */
@@ -16,13 +17,14 @@ export function FilterableGrid({
   categories: { name: string; slug: string }[];
   limit?: number;
 }) {
+  const { L } = useI18n();
   const [active, setActive] = useState<string>("all");
   const shown = products.filter((p) => active === "all" || p.category.slug === active).slice(0, limit);
-  const chips = [{ slug: "all", name: "الكل" }, ...categories.filter((c) => products.some((p) => p.category.slug === c.slug))];
+  const chips = [{ slug: "all", name: L("الكل", "All") }, ...categories.filter((c) => products.some((p) => p.category.slug === c.slug))];
 
   return (
     <div>
-      <div role="group" aria-label="تصفية حسب القسم" className="-mx-1 mb-6 flex gap-2 overflow-x-auto px-1 pb-1">
+      <div role="group" aria-label={L("تصفية حسب القسم", "Filter by category")} className="-mx-1 mb-6 flex gap-2 overflow-x-auto px-1 pb-1">
         {chips.map((c) => {
           const selected = active === c.slug;
           return (
@@ -31,8 +33,8 @@ export function FilterableGrid({
               type="button"
               aria-pressed={selected}
               onClick={() => setActive(c.slug)}
-              className={`relative shrink-0 rounded-full border px-4 py-1.5 text-sm transition-colors ${
-                selected ? "border-transparent text-graphite" : "border-steel text-haze hover:border-steel-2 hover:text-mist"
+              className={`relative min-h-10 shrink-0 rounded-full border px-4 py-1.5 text-sm transition-colors ${
+                selected ? "border-transparent text-ink" : "border-steel text-haze hover:border-steel-2 hover:text-mist"
               }`}
             >
               {selected && (

@@ -6,7 +6,9 @@
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "assets": {
     "directory": ".open-next/assets",
-    "binding": "ASSETS"
+    "binding": "ASSETS",
+    // public/offline.html must be served at that exact path for the service worker
+    "html_handling": "none"
   },
   "services": [
     { "binding": "WORKER_SELF_REFERENCE", "service": "grand-store" }

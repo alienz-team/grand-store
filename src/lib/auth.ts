@@ -2,7 +2,7 @@ import "server-only";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-export const SESSION_COOKIE = "gs_admin";
+const SESSION_COOKIE = "gs_admin";
 const SESSION_TTL_SECONDS = 60 * 60 * 12; // 12 hours
 
 const encoder = new TextEncoder();
@@ -34,12 +34,31 @@ function timingSafeEqual(a: string, b: string): boolean {
   return diff === 0;
 }
 
-/** Compares HMACs of both values so neither length nor content leaks through timing. */
-export async function passwordMatches(candidate: string): Promise<boolean> {
-  const expected = process.env.ADMIN_PASSWORD;
-  if (!expected) return false;
-  const [a, b] = await Promise.all([hmac(`pw:${candidate}`), hmac(`pw:${expected}`)]);
-  return timingSafeEqual(a, b);
+/** Admin login is configured when both ADMIN_EMAIL and ADMIN_PASSWORD are set. */
+export function adminConfigured(): boolean {
+  return Boolean(process.env.ADMIN_EMAIL?.trim() && process.env.ADMIN_PASSWORD);
+}
+
+const normalizeEmail = (email: string) => email.trim().toLowerCase();
+
+/**
+ * Checks the admin email (case-insensitive) and password. HMACs of both sides
+ * are compared so neither length nor content leaks through timing, and both
+ * fields are always checked so the response doesn't reveal which one was wrong.
+ */
+export async function credentialsMatch(email: string, password: string): Promise<boolean> {
+  const expectedEmail = process.env.ADMIN_EMAIL;
+  const expectedPassword = process.env.ADMIN_PASSWORD;
+  if (!expectedEmail?.trim() || !expectedPassword) return false;
+  const [e1, e2, p1, p2] = await Promise.all([
+    hmac(`email:${normalizeEmail(email)}`),
+    hmac(`email:${normalizeEmail(expectedEmail)}`),
+    hmac(`pw:${password}`),
+    hmac(`pw:${expectedPassword}`),
+  ]);
+  const emailOk = timingSafeEqual(e1, e2);
+  const passwordOk = timingSafeEqual(p1, p2);
+  return emailOk && passwordOk;
 }
 
 export async function createSession(): Promise<void> {

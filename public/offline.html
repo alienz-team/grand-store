@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>غير متصل — Grand Store</title>
+<style>
+  :root { color-scheme: dark light; }
+  body { margin: 0; min-height: 100dvh; display: grid; place-items: center; padding: 1.5rem; box-sizing: border-box;
+    font-family: system-ui, "Segoe UI", Tahoma, sans-serif; background: #15171c; color: #e9ecef; text-align: center; }
+  @media (prefers-color-scheme: light) { body { background: #f5f3ee; color: #17191e; } p { color: #4b515c !important; } }
+  img { width: 72px; height: 72px; border-radius: 18px; }
+  h1 { font-size: 1.5rem; margin: 1.25rem 0 .5rem; }
+  p { color: #a3a9b4; margin: .25rem 0; line-height: 1.6; }
+  button { margin-top: 1.5rem; min-height: 44px; padding: .7rem 1.6rem; border: 0; border-radius: 999px;
+    background: #ffb627; color: #15171c; font: inherit; font-weight: 700; cursor: pointer; }
+</style>
+</head>
+<body>
+<main>
+  <img src="/icons/icon-192.png" alt="">
+  <h1>أنت غير متصل بالإنترنت</h1>
+  <p>تحقق من اتصالك ثم أعد المحاولة.</p>
+  <p dir="ltr" lang="en">You're offline. Check your connection and try again.</p>
+  <button type="button" onclick="location.reload()">إعادة المحاولة · Retry</button>
+</main>
+</body>
+</html>

@@ -2,18 +2,25 @@
 
 import { motion, useScroll, useTransform, type Variants } from "motion/react";
 import Link from "next/link";
-import { useRef } from "react";
+import { Fragment, useRef } from "react";
 import { formatPrice } from "@/lib/format";
 import type { ProductView } from "@/lib/types";
 import { AddToCartButton } from "./add-to-cart";
 import { EASE_OUT } from "./motion";
+import { useI18n } from "./preferences";
 import { Badge, ProductVisual } from "./product-bits";
 
 // Words, not letters: splitting Arabic letters would break their joined shapes.
-const LINES = [
-  ["تســوق", "كـل", "ماتريـد"],
-  ["وانـت", "فـي", "مكــانـك"],
-];
+const LINES = {
+  ar: [
+    ["تســوق", "كـل", "ماتريـد"],
+    ["وانـت", "فـي", "مكــانـك"],
+  ],
+  en: [
+    ["Shop", "everything", "you", "want"],
+    ["from", "wherever", "you", "are"],
+  ],
+};
 
 const title: Variants = { hidden: {}, show: { transition: { staggerChildren: 0.09, delayChildren: 0.1 } } };
 const word: Variants = {
@@ -22,22 +29,29 @@ const word: Variants = {
 };
 
 export function HeroTitle() {
+  const { lang } = useI18n();
   return (
     <motion.h1
-      className="font-display text-[clamp(2.6rem,8.2vw,6.4rem)] font-black leading-[1.15] tracking-tight"
+      key={lang}
+      className={`font-display font-black leading-[1.15] tracking-tight ${
+        lang === "ar" ? "text-[clamp(2.25rem,9vw,6.4rem)]" : "text-[clamp(2.1rem,7vw,5.25rem)]"
+      }`}
       variants={title}
       initial="hidden"
       animate="show"
     >
-      {LINES.map((line, li) => (
+      {LINES[lang].map((line, li) => (
         <span key={li} className={`block ${li === 1 ? "text-haze" : ""}`}>
           {line.map((w, wi) => (
-            <span key={wi} className="inline-block overflow-hidden pb-[0.12em] align-bottom">
-              <motion.span className="inline-block" variants={word}>
-                {w}
-              </motion.span>
+            <Fragment key={wi}>
+              <span className="inline-block overflow-hidden pb-[0.12em] align-bottom">
+                <motion.span className="inline-block" variants={word}>
+                  {w}
+                </motion.span>
+              </span>
+              {/* The space must sit outside the inline-block mask, or it collapses and the words run together. */}
               {wi < line.length - 1 && " "}
-            </span>
+            </Fragment>
           ))}
         </span>
       ))}
@@ -54,6 +68,7 @@ export function HeroIntro({ children }: { children: React.ReactNode }) {
 }
 
 export function HeroShowcase({ product }: { product: ProductView }) {
+  const { lang } = useI18n();
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
   const parallax = useTransform(scrollYProgress, [0, 1], [40, -40]);
@@ -88,7 +103,7 @@ export function HeroShowcase({ product }: { product: ProductView }) {
               <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-saffron/15 to-transparent" />
             </Link>
             {product.badge && (
-              <div className="absolute top-4 right-4">
+              <div className="absolute top-4 start-4">
                 <Badge label={product.badge} />
               </div>
             )}
@@ -96,11 +111,11 @@ export function HeroShowcase({ product }: { product: ProductView }) {
               <div className="min-w-0 flex-1">
                 <p className="text-sm text-dim">{product.category.name}</p>
                 <h2 className="truncate font-display text-xl font-bold">
-                  <Link href={`/product/${product.id}`} className="hover:text-saffron">
+                  <Link href={`/product/${product.id}`} className="hover:text-gold">
                     {product.title}
                   </Link>
                 </h2>
-                <p className="num mt-1 font-display text-3xl font-black text-saffron">{formatPrice(product.finalPrice)}</p>
+                <p className="num mt-1 font-display text-2xl font-black text-gold sm:text-3xl">{formatPrice(product.finalPrice, lang)}</p>
               </div>
               <AddToCartButton product={product} />
             </div>

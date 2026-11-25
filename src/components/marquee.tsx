@@ -2,15 +2,19 @@
 
 import { motion, useAnimationFrame, useMotionValue, useReducedMotion } from "motion/react";
 import { useRef } from "react";
+import { useI18n } from "./preferences";
 
 const SPEED_PX_PER_MS = 0.045;
 
 /**
- * Seamless RTL ticker. Two identical groups sit side by side; the track moves
- * right by exactly one group's width and wraps, so there's no visible jump.
+ * Seamless ticker. Two identical groups sit side by side; the track moves by
+ * exactly one group's width and wraps, so there's no visible jump. It flows
+ * with the reading direction (rightwards in Arabic, leftwards in English).
  * Hovering eases the speed down to a stop (and back up) instead of freezing.
  */
-export function Marquee({ items }: { items: string[] }) {
+export function Marquee({ items, label }: { items: string[]; label: string }) {
+  const { dir } = useI18n();
+  const sign = dir === "rtl" ? 1 : -1;
   const x = useMotionValue(0);
   const group = useRef<HTMLDivElement>(null);
   const speed = useRef(1);
@@ -23,9 +27,9 @@ export function Marquee({ items }: { items: string[] }) {
     speed.current += (target.current - speed.current) * Math.min(1, dt / 220);
     const width = group.current.offsetWidth;
     if (width === 0) return;
-    let next = x.get() + SPEED_PX_PER_MS * speed.current * dt;
+    let next = Math.abs(x.get()) + SPEED_PX_PER_MS * speed.current * dt;
     if (next >= width) next -= width;
-    x.set(next);
+    x.set(sign * next);
   });
 
   const renderGroup = (hidden: boolean, ref?: React.Ref<HTMLDivElement>) => (
@@ -44,7 +48,7 @@ export function Marquee({ items }: { items: string[] }) {
       className="overflow-hidden border-b border-steel bg-slab py-2.5 [mask-image:linear-gradient(to_left,transparent,black_6%,black_94%,transparent)]"
       onMouseEnter={() => (target.current = 0)}
       onMouseLeave={() => (target.current = 1)}
-      aria-label="آخر العروض"
+      aria-label={label}
       role="region"
     >
       <motion.div className="flex w-max" style={{ x }}>

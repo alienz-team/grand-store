@@ -2,7 +2,7 @@ import "server-only";
 import { getDb } from "./db";
 import type { CategoryView, ProductView } from "./types";
 
-export const productSelect = {
+const productSelect = {
   id: true,
   title: true,
   description: true,
@@ -34,7 +34,7 @@ type RawProduct = {
   category: { id: string; name: string; slug: string };
 };
 
-export function toProductView(p: RawProduct): ProductView {
+function toProductView(p: RawProduct): ProductView {
   const price = Number(p.price.toString());
   const salePrice = p.salePrice == null ? null : Number(p.salePrice.toString());
   return {

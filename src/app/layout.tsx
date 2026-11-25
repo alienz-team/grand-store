@@ -1,27 +1,53 @@
 import type { Metadata, Viewport } from "next";
+import { Alexandria, IBM_Plex_Sans_Arabic } from "next/font/google";
 import "./globals.css";
+import { ServiceWorkerRegister } from "@/components/install-app";
+import { LangProvider } from "@/components/preferences";
+import { dirOf } from "@/lib/i18n";
+import { getI18n } from "@/lib/i18n-server";
 import { SITE } from "@/lib/site";
+import { THEME_INIT_SCRIPT } from "@/lib/theme";
 
-export const metadata: Metadata = {
-  title: { default: `${SITE.name} — تسوق أونلاين في ليبيا`, template: `%s | ${SITE.name}` },
-  description: `${SITE.tagline}. أجهزة إلكترونية، ديكور، أدوات مطبخ وهدايا مع توصيل داخل طرابلس وكافة المدن الليبية والدفع عند الاستلام.`,
+// Self-hosted at build time: no request to Google at runtime, and size-adjusted fallbacks keep layout shift near zero.
+const display = Alexandria({ subsets: ["arabic", "latin"], weight: ["400", "600", "800", "900"], variable: "--font-alexandria" });
+const sans = IBM_Plex_Sans_Arabic({ subsets: ["arabic", "latin"], weight: ["400", "500", "600", "700"], variable: "--font-plex" });
+
+export async function generateMetadata(): Promise<Metadata> {
+  const { L } = await getI18n();
+  return {
+    title: { default: `${SITE.name} — ${L("تسوق أونلاين في ليبيا", "Online shopping in Libya")}`, template: `%s | ${SITE.name}` },
+    description: L(
+      `${SITE.tagline.ar}. أجهزة إلكترونية، ديكور، أدوات مطبخ وهدايا مع توصيل داخل طرابلس وكافة المدن الليبية والدفع عند الاستلام.`,
+      "Electronics, home decor, kitchenware and gifts, delivered across Tripoli and all of Libya. Pay cash on delivery.",
+    ),
+    applicationName: SITE.name,
+    appleWebApp: { capable: true, title: SITE.name, statusBarStyle: "black-translucent" },
+    formatDetection: { telephone: false },
+  };
+}
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: dark)", color: "#15171c" },
+    { media: "(prefers-color-scheme: light)", color: "#f5f3ee" },
+  ],
 };
 
-export const viewport: Viewport = { themeColor: "#15171c" };
-
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const { lang } = await getI18n();
   return (
-    <html lang="ar" dir="rtl">
+    // The theme script sets data-theme before hydration, so React must not complain about it.
+    <html lang={lang} dir={dirOf(lang)} className={`${display.variable} ${sans.variable}`} suppressHydrationWarning>
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;600;800;900&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap"
-        />
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        <LangProvider lang={lang}>{children}</LangProvider>
+        <ServiceWorkerRegister />
+      </body>
     </html>
   );
 }
