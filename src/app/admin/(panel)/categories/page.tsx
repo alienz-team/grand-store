@@ -9,7 +9,7 @@ export default async function AdminCategories({ searchParams }: { searchParams: 
   const { error } = await searchParams;
   const categories = await getDb().category.findMany({
     orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
-    select: { id: true, name: true, slug: true, sortOrder: true, _count: { select: { products: true } } },
+    select: { id: true, name: true, slug: true, imageUrl: true, sortOrder: true, _count: { select: { products: true } } },
   });
 
   return (

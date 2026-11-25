@@ -14,30 +14,15 @@ export function AnnouncementBar() {
   );
 }
 
-const TICKER = [
+export const TICKER = [
   "ايفون 13 برو ماكس متوفر الآن",
   "توصيل لكل المدن الليبية",
   "عرض الأسبوع: سروال أزرق بـ 79 ل.د",
-  "ساعات ذكية وشواحن متنقلة",
+  "سماعات لاسلكية ومكبرات صوت",
+  "ديكور يغيّر شكل بيتك",
   "هدايا لكل مناسبة",
   "الدفع نقدًا عند الاستلام",
 ];
-
-export function Marquee() {
-  const items = [...TICKER, ...TICKER];
-  return (
-    <div className="overflow-hidden border-b border-steel bg-slab py-2.5" aria-label="آخر العروض">
-      <div className="flex w-max animate-marquee gap-10 motion-reduce:animate-none">
-        {items.map((t, i) => (
-          <span key={i} aria-hidden={i >= TICKER.length} className="flex shrink-0 items-center gap-10 whitespace-nowrap text-sm text-haze">
-            {t}
-            <span className="size-1.5 rotate-45 bg-saffron" aria-hidden />
-          </span>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 const TRUST = [
   { icon: TruckIcon, title: "توصيل سريع", text: "داخل طرابلس وكافة المدن الليبية" },

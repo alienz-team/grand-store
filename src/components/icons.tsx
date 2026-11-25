@@ -29,7 +29,20 @@ export const PlusIcon = ({ className = "size-5" }: P) => (
   </svg>
 );
 
-export const MinusIcon = ({ className = "size-4" }: P) => (
+export const CheckIcon = ({ className = "size-5" }: P) => (
+  <svg viewBox="0 0 24 24" className={className} {...base} strokeWidth={2.6}>
+    <path d="m5 12.5 4.5 4.5L19 7.5" />
+  </svg>
+);
+
+export const EyeIcon = ({ className = "size-5" }: P) => (
+  <svg viewBox="0 0 24 24" className={className} {...base}>
+    <path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z" />
+    <circle cx="12" cy="12" r="3" />
+  </svg>
+);
+
+export const MinusIcon =({ className = "size-4" }: P) => (
   <svg viewBox="0 0 24 24" className={className} {...base} strokeWidth={2.4}>
     <path d="M5 12h14" />
   </svg>

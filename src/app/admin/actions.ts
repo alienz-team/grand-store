@@ -58,15 +58,17 @@ export async function saveCategory(_prev: FormState, formData: FormData): Promis
   const name = str(formData, "name");
   const slug = slugify(str(formData, "slug") || name);
   const sortOrder = Math.floor(Number(str(formData, "sortOrder") || "0")) || 0;
+  const imageUrl = str(formData, "imageUrl") || null;
   if (name.length < 2) return { error: "اسم القسم قصير جدًا." };
   if (!slug) return { error: "الرابط المختصر غير صالح." };
+  if (imageUrl && !/^https:\/\/\S+$/i.test(imageUrl)) return { error: "رابط الصورة يجب أن يبدأ بـ https://" };
 
   const db = getDb();
   const clash = await db.category.findFirst({ where: { slug, NOT: id ? { id } : undefined }, select: { id: true } });
   if (clash) return { error: "يوجد قسم آخر بنفس الرابط المختصر." };
 
-  if (id) await db.category.update({ where: { id }, data: { name, slug, sortOrder } });
-  else await db.category.create({ data: { name, slug, sortOrder } });
+  if (id) await db.category.update({ where: { id }, data: { name, slug, sortOrder, imageUrl } });
+  else await db.category.create({ data: { name, slug, sortOrder, imageUrl } });
   refreshStore();
   return { ok: id ? "تم حفظ القسم." : "تمت إضافة القسم." };
 }

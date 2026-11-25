@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "motion/react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
@@ -91,9 +92,15 @@ export function Navbar({ categories }: { categories: NavCategory[] }) {
         >
           <BagIcon />
           {ready && count > 0 && (
-            <span className="num absolute -top-1 -left-1 grid min-w-5 place-items-center rounded-full bg-saffron px-1 text-[11px] font-bold leading-5 text-graphite">
+            <motion.span
+              key={count}
+              initial={{ scale: 0.4, y: -6 }}
+              animate={{ scale: 1, y: 0 }}
+              transition={{ type: "spring", stiffness: 600, damping: 12 }}
+              className="num absolute -top-1 -left-1 grid min-w-5 place-items-center rounded-full bg-saffron px-1 text-[11px] font-bold leading-5 text-graphite"
+            >
               {count}
-            </span>
+            </motion.span>
           )}
         </button>
       </div>

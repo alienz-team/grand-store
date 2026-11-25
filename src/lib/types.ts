@@ -19,6 +19,7 @@ export type CategoryView = {
   id: string;
   name: string;
   slug: string;
+  imageUrl: string | null;
   sortOrder: number;
   productCount: number;
 };

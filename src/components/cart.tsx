@@ -61,7 +61,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       }
       return [...prev, { ...line, quantity }];
     });
-    setOpen(true);
   }, []);
 
   const setQuantity = useCallback((id: string, quantity: number) => {

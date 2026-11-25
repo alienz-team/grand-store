@@ -3,7 +3,7 @@
 import { useActionState, useEffect, useRef } from "react";
 import { saveCategory, type FormState } from "../../actions";
 
-type Category = { id: string; name: string; slug: string; sortOrder: number };
+type Category = { id: string; name: string; slug: string; imageUrl: string | null; sortOrder: number };
 
 export function CategoryForm({ category }: { category?: Category }) {
   const [state, action, pending] = useActionState<FormState, FormData>(saveCategory, {});
@@ -34,6 +34,12 @@ export function CategoryForm({ category }: { category?: Category }) {
           الترتيب
         </label>
         <input id={`sort-${p}`} name="sortOrder" type="number" dir="ltr" defaultValue={category?.sortOrder ?? 0} className="field num" />
+      </div>
+      <div className="min-w-64 basis-full sm:basis-auto sm:flex-[2]">
+        <label htmlFor={`img-${p}`} className="mb-1 block text-xs text-haze">
+          رابط صورة القسم
+        </label>
+        <input id={`img-${p}`} name="imageUrl" type="url" dir="ltr" placeholder="https://images.unsplash.com/…" defaultValue={category?.imageUrl ?? ""} className="field" />
       </div>
       <button type="submit" disabled={pending} className="btn btn-primary">
         {pending ? "جارٍ الحفظ…" : category ? "حفظ" : "إضافة"}

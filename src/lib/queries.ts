@@ -53,6 +53,7 @@ export async function getCategories(): Promise<CategoryView[]> {
       id: true,
       name: true,
       slug: true,
+      imageUrl: true,
       sortOrder: true,
       _count: { select: { products: { where: { active: true } } } },
     },

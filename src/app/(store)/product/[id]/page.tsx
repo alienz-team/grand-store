@@ -36,8 +36,8 @@ export default async function ProductPage({ params }: Props) {
       </nav>
 
       <div className="grid gap-8 lg:grid-cols-2 lg:gap-14">
-        <div className="relative aspect-square overflow-hidden rounded-3xl border border-steel">
-          <ProductVisual imageUrl={product.imageUrl} title={product.title} categorySlug={product.category.slug} size="hero" />
+        <div className="group relative aspect-square overflow-hidden rounded-3xl border border-steel">
+          <ProductVisual imageUrl={product.imageUrl} title={product.title} categorySlug={product.category.slug} size="hero" priority />
           {product.badge && (
             <div className="absolute top-4 right-4">
               <Badge label={product.badge} />
