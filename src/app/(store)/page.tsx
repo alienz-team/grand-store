@@ -3,7 +3,7 @@ import { AddToCartButton } from "@/components/add-to-cart";
 import { SectionHeader, TrustBar } from "@/components/bars";
 import { Countdown } from "@/components/countdown";
 import { FilterableGrid } from "@/components/filterable-grid";
-import { HeroIntro, HeroShowcase, HeroTitle } from "@/components/hero";
+import { HeroIntro, HeroShowcase, HeroStage, HeroTitle } from "@/components/hero";
 import { CategoryGlyph } from "@/components/icons";
 import { Reveal, Stagger, StaggerItem } from "@/components/motion";
 import { ProductVisual } from "@/components/product-bits";
@@ -35,12 +35,7 @@ export default async function HomePage() {
   return (
     <>
       {/* Hero */}
-      <section className="relative overflow-hidden">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0"
-          style={{ background: "radial-gradient(45% 60% at 18% 45%, rgb(255 182 39 / 0.10), transparent 70%)" }}
-        />
+      <HeroStage products={heroProducts}>
         <div className="relative mx-auto grid max-w-7xl items-center gap-10 px-4 py-8 sm:gap-12 sm:px-6 md:py-14 lg:grid-cols-[1.25fr_1fr]">
           <div>
             <HeroTitle />
@@ -52,10 +47,10 @@ export default async function HomePage() {
                 )}
               </p>
               <div className="mt-6 flex flex-wrap gap-3">
-                <Link href="#best" className="btn btn-primary">
+                <Link href="#best" className="btn btn-primary btn-glow">
                   {L("تسوق الأكثر مبيعًا", "Shop best sellers")}
                 </Link>
-                <Link href="#categories" className="btn btn-ghost">
+                <Link href="#categories" className="btn btn-ghost glass">
                   {L("تصفح الأقسام", "Browse categories")}
                 </Link>
               </div>
@@ -63,20 +58,20 @@ export default async function HomePage() {
           </div>
           {heroProducts.length > 0 && <HeroShowcase products={heroProducts} />}
         </div>
-      </section>
+      </HeroStage>
 
       <TrustBar L={L} />
 
       <div className="mx-auto max-w-7xl space-y-16 px-4 pt-12 sm:space-y-24 sm:px-6 sm:pt-16">
         {categories.length > 0 && (
-          <section id="categories" aria-label={L("تسوق حسب القسم", "Shop by category")} className="scroll-mt-24">
+          <section id="categories" aria-label={L("تسوق حسب القسم", "Shop by category")} className="mesh-bg scroll-mt-24">
             <SectionHeader index={idx("categories")} title={L("تسوق حسب القسم", "Shop by category")} />
             <Stagger as="ul" className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
               {categories.map((c) => (
                 <StaggerItem as="li" key={c.id}>
                   <Link
                     href={`/category/${c.slug}`}
-                    className="group relative block aspect-[4/5] overflow-hidden rounded-2xl border border-steel bg-slab transition-[border-color,box-shadow] duration-300 hover:border-saffron/60 hover:shadow-[0_18px_48px_-16px_rgb(255_182_39/0.4)]"
+                    className="sheen group relative block aspect-[4/5] overflow-hidden rounded-2xl border border-steel bg-slab transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-1.5 hover:border-saffron/60 hover:shadow-[0_18px_48px_-16px_rgb(255_182_39/0.4)]"
                   >
                     {c.imageUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
@@ -122,10 +117,10 @@ export default async function HomePage() {
         )}
 
         {deal && deal.dealEndsAt && (
-          <section aria-label={L("عرض الأسبوع", "Deal of the week")}>
+          <section aria-label={L("عرض الأسبوع", "Deal of the week")} className="mesh-bg mesh-amber">
             <SectionHeader index={idx("deal")} title={L("عرض الأسبوع", "Deal of the week")} />
             <Reveal>
-              <div className="group grid overflow-hidden rounded-3xl border border-saffron/40 bg-slab shadow-[0_30px_80px_-30px_rgb(255_182_39/0.35)] md:grid-cols-2">
+              <div className="sheen group relative grid overflow-hidden rounded-3xl border border-saffron/40 bg-slab shadow-[0_30px_80px_-30px_rgb(255_182_39/0.35)] md:grid-cols-2">
                 <Link href={`/product/${deal.id}`} className="relative block aspect-[4/3] md:aspect-auto md:min-h-[420px]" tabIndex={-1} aria-hidden>
                   <ProductVisual imageUrl={deal.imageUrl} title={deal.title} categorySlug={deal.category.slug} size="hero" />
                 </Link>

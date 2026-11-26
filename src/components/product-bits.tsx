@@ -46,7 +46,7 @@ export function ProductVisual({
             className="absolute inset-0"
             style={{
               background:
-                "radial-gradient(60% 55% at 50% 60%, rgb(255 182 39 / 0.14), transparent 70%), repeating-linear-gradient(90deg, transparent 0 23px, rgb(255 255 255 / 0.025) 23px 24px)",
+                "radial-gradient(60% 55% at 50% 60%, rgb(245 158 11 / 0.14), transparent 70%), repeating-linear-gradient(90deg, transparent 0 23px, rgb(255 255 255 / 0.025) 23px 24px)",
             }}
           />
           <CategoryGlyph slug={categorySlug} className={`relative text-gold/80 ${glyph}`} />

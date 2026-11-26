@@ -2,8 +2,9 @@
 
 import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform, type Variants } from "motion/react";
 import Link from "next/link";
-import { Fragment, useEffect, useRef, useState } from "react";
+import { createContext, Fragment, useContext, useEffect, useRef, useState } from "react";
 import { formatPrice } from "@/lib/format";
+import { sizedImage } from "@/lib/images";
 import type { ProductView } from "@/lib/types";
 import { AddToCartButton } from "./add-to-cart";
 import { EASE_OUT } from "./motion";
@@ -45,7 +46,7 @@ export function HeroTitle() {
           {line.map((w, wi) => (
             <Fragment key={wi}>
               <span className="inline-block overflow-hidden pb-[0.12em] align-bottom">
-                <motion.span className="inline-block" variants={word}>
+                <motion.span className={`inline-block ${li === 0 && wi === line.length - 1 ? "text-shimmer" : ""}`} variants={word}>
                   {w}
                 </motion.span>
               </span>
@@ -69,11 +70,52 @@ export function HeroIntro({ children }: { children: React.ReactNode }) {
 
 const CYCLE_MS = 3500;
 
+type Slide = { index: number; setIndex: (i: number | ((i: number) => number)) => void };
+const SlideContext = createContext<Slide | null>(null);
+
+/** Hero section: owns the active slide so the backdrop can mirror the showcase. */
+export function HeroStage({ products, children }: { products: ProductView[]; children: React.ReactNode }) {
+  const [index, setIndex] = useState(0);
+  const active = products[index % Math.max(products.length, 1)];
+  return (
+    <SlideContext.Provider value={{ index, setIndex }}>
+      <section className="relative isolate overflow-hidden">
+        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+          <AnimatePresence initial={false}>
+            {active?.imageUrl && (
+              <motion.div
+                key={active.id}
+                className="absolute -inset-10 bg-cover bg-center opacity-0 blur-3xl"
+                style={{ backgroundImage: `url("${sizedImage(active.imageUrl, 320)}")` }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 0.32 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 1.2, ease: "easeInOut" }}
+              />
+            )}
+          </AnimatePresence>
+          <div className="orb -top-24 start-[-8rem] size-[26rem] bg-indigo" />
+          <div className="orb bottom-[-10rem] end-[-6rem] size-[30rem] bg-saffron [animation-delay:-6s]" />
+          <div className="orb top-1/3 start-1/3 size-72 bg-cyan [animation-delay:-11s] [animation-duration:24s]" />
+          {/* Vignette keeps the headline legible over any image */}
+          <div
+            className="absolute inset-0"
+            style={{ background: "radial-gradient(120% 90% at 30% 40%, color-mix(in srgb, var(--color-graphite) 55%, transparent), var(--color-graphite) 85%)" }}
+          />
+        </div>
+        {children}
+      </section>
+    </SlideContext.Provider>
+  );
+}
+
 export function HeroShowcase({ products }: { products: ProductView[] }) {
   const { L, lang } = useI18n();
   const reduce = useReducedMotion();
   const ref = useRef<HTMLDivElement>(null);
-  const [index, setIndex] = useState(0);
+  const local = useState(0);
+  const slide = useContext(SlideContext);
+  const [index, setIndex] = slide ? [slide.index, slide.setIndex] : local;
   const [paused, setPaused] = useState(false);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
   const parallax = useTransform(scrollYProgress, [0, 1], [40, -40]);
@@ -84,7 +126,7 @@ export function HeroShowcase({ products }: { products: ProductView[] }) {
     if (reduce || paused || products.length < 2) return;
     const t = setInterval(() => setIndex((i) => (i + 1) % products.length), CYCLE_MS);
     return () => clearInterval(t);
-  }, [reduce, paused, products.length]);
+  }, [reduce, paused, products.length, setIndex]);
 
   return (
     <motion.div
@@ -102,7 +144,7 @@ export function HeroShowcase({ products }: { products: ProductView[] }) {
       <motion.div
         aria-hidden
         className="pointer-events-none absolute -inset-16 rounded-full"
-        style={{ background: "radial-gradient(closest-side, rgb(255 182 39 / 0.32), rgb(255 182 39 / 0.08) 55%, transparent 75%)" }}
+        style={{ background: "radial-gradient(closest-side, rgb(245 158 11 / 0.32), rgb(245 158 11 / 0.08) 55%, transparent 75%)" }}
         animate={reduce ? undefined : { opacity: [0.6, 1, 0.6], scale: [0.95, 1.05, 0.95] }}
         transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
       />
@@ -115,7 +157,7 @@ export function HeroShowcase({ products }: { products: ProductView[] }) {
           transition={{ duration: 6.5, repeat: Infinity, ease: "easeInOut" }}
         >
           <div className="absolute -inset-px rounded-[28px] bg-gradient-to-b from-saffron/70 via-saffron/15 to-steel" aria-hidden />
-          <div className="relative overflow-hidden rounded-[27px] bg-slab shadow-[0_30px_80px_-20px_rgb(255_182_39/0.35)]">
+          <div className="sheen relative overflow-hidden rounded-[27px] bg-slab shadow-[0_30px_80px_-20px_rgb(255_182_39/0.35)]">
             <div className="relative">
             <Link href={`/product/${product.id}`} className="relative block aspect-square overflow-hidden" tabIndex={-1} aria-hidden>
               <AnimatePresence initial={false}>

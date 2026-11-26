@@ -13,7 +13,7 @@ export function ProductCard({ product }: { product: ProductView }) {
   const { lang, L } = useI18n();
   const onSale = product.finalPrice < product.price;
   return (
-    <article className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-steel bg-slab transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-1 hover:border-saffron/60 hover:shadow-[0_0_0_1px_rgb(255_182_39/0.25),0_18px_48px_-16px_rgb(255_182_39/0.35)]">
+    <article className="sheen group relative flex h-full flex-col overflow-hidden rounded-2xl border border-steel bg-slab transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-1.5 hover:border-saffron/60 hover:shadow-[0_0_0_1px_rgb(255_182_39/0.25),0_18px_48px_-16px_rgb(255_182_39/0.35)]">
       <Link href={`/product/${product.id}`} className="block aspect-[4/5] focus-visible:outline-offset-[-2px]" tabIndex={-1} aria-hidden>
         <ProductVisual imageUrl={product.imageUrl} title={product.title} categorySlug={product.category.slug} />
       </Link>
