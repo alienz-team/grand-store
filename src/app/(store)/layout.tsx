@@ -1,4 +1,4 @@
-import { AnnouncementBar, tickerItems } from "@/components/bars";
+import { tickerItems } from "@/components/bars";
 import { CartProvider } from "@/components/cart";
 import { CartDrawer } from "@/components/cart-drawer";
 import { Footer } from "@/components/footer";
@@ -22,7 +22,6 @@ export default async function StoreLayout({ children }: { children: React.ReactN
         >
           {L("تخطَّ إلى المحتوى", "Skip to content")}
         </a>
-        <AnnouncementBar L={L} />
         <Navbar categories={categories} />
         <Marquee items={tickerItems(L)} label={L("آخر العروض", "Latest offers")} />
         <main id="main">{children}</main>

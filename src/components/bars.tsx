@@ -1,19 +1,5 @@
 import type { Translate } from "@/lib/i18n";
-import { SITE } from "@/lib/site";
 import { CashIcon, ShieldIcon, TruckIcon } from "./icons";
-
-export function AnnouncementBar({ L }: { L: Translate }) {
-  return (
-    <div className="bg-saffron text-ink">
-      <p className="mx-auto max-w-7xl px-4 py-2 text-center text-xs font-semibold sm:text-sm">
-        {L("اطلب الآن وادفع عند الاستلام — للطلب والاستفسار واتساب", "Order now, pay on delivery — WhatsApp us at")}{" "}
-        <a href={`https://wa.me/${SITE.whatsapp}`} className="ltr num -my-1 py-1 underline underline-offset-2" target="_blank" rel="noopener noreferrer">
-          {SITE.phoneDisplay}
-        </a>
-      </p>
-    </div>
-  );
-}
 
 export function tickerItems(L: Translate): string[] {
   return [

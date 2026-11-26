@@ -22,7 +22,8 @@ export default async function HomePage() {
     getDealOfTheWeek(),
   ]);
 
-  const hero = [...bestSellers].sort((a, b) => b.finalPrice - a.finalPrice)[0] ?? latest[0];
+  const withImages = [...bestSellers, ...latest].filter((p, i, all) => p.imageUrl && all.findIndex((q) => q.id === p.id) === i);
+  const heroProducts = (withImages.length ? withImages : latest).slice(0, 5);
   const sections = [
     { key: "categories", show: categories.length > 0 },
     { key: "best", show: bestSellers.length > 0 },
@@ -40,17 +41,17 @@ export default async function HomePage() {
           className="pointer-events-none absolute inset-0"
           style={{ background: "radial-gradient(45% 60% at 18% 45%, rgb(255 182 39 / 0.10), transparent 70%)" }}
         />
-        <div className="relative mx-auto grid max-w-7xl items-center gap-10 px-4 py-10 sm:gap-12 sm:px-6 md:py-20 lg:grid-cols-[1.25fr_1fr]">
+        <div className="relative mx-auto grid max-w-7xl items-center gap-10 px-4 py-8 sm:gap-12 sm:px-6 md:py-14 lg:grid-cols-[1.25fr_1fr]">
           <div>
             <HeroTitle />
             <HeroIntro>
-              <p className="mt-6 max-w-lg text-base text-haze sm:text-lg">
+              <p className="mt-4 max-w-lg text-base text-haze sm:text-lg">
                 {L(
                   "أجهزة إلكترونية، ديكور، أدوات مطبخ وهدايا من طرابلس إلى باب بيتك. اطلب في دقيقة وادفع نقدًا عند الاستلام.",
                   "Electronics, home decor, kitchenware and gifts, from Tripoli to your door. Order in a minute and pay cash on delivery.",
                 )}
               </p>
-              <div className="mt-8 flex flex-wrap gap-3">
+              <div className="mt-6 flex flex-wrap gap-3">
                 <Link href="#best" className="btn btn-primary">
                   {L("تسوق الأكثر مبيعًا", "Shop best sellers")}
                 </Link>
@@ -60,7 +61,7 @@ export default async function HomePage() {
               </div>
             </HeroIntro>
           </div>
-          {hero && <HeroShowcase product={hero} />}
+          {heroProducts.length > 0 && <HeroShowcase products={heroProducts} />}
         </div>
       </section>
 

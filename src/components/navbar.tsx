@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { useCart } from "./cart";
-import { BagIcon, CloseIcon, MenuIcon, SearchIcon } from "./icons";
+import { BagIcon, CloseIcon, MenuIcon, SearchIcon, UserIcon } from "./icons";
 import { InstallAppButton } from "./install-app";
 import { LanguageToggle, ThemeToggle, useI18n } from "./preferences";
 
@@ -55,7 +55,7 @@ export function Navbar({ categories }: { categories: NavCategory[] }) {
 
   return (
     <header className="sticky top-0 z-40 border-b border-steel bg-graphite/85 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-7xl items-center gap-2 px-4 sm:gap-4 sm:px-6">
+      <div className="mx-auto flex h-16 max-w-7xl items-center gap-1.5 px-3 sm:gap-4 sm:px-6">
         <button
           type="button"
           className="-ms-2 grid size-11 place-items-center lg:hidden"
@@ -95,18 +95,26 @@ export function Navbar({ categories }: { categories: NavCategory[] }) {
           </Suspense>
         </div>
 
-        <div className="ms-auto flex items-center gap-1.5 sm:gap-2 md:ms-0">
+        <div className="ms-auto flex items-center gap-1 sm:gap-2 md:ms-0">
           <span className="hidden lg:contents">
             <InstallAppButton />
           </span>
           <ThemeToggle />
           <LanguageToggle />
+          <Link
+            href="/admin/login"
+            aria-label={L("تسجيل الدخول", "Log in")}
+            title={L("تسجيل الدخول", "Log in")}
+            className="grid size-10 shrink-0 place-items-center rounded-full border border-steel text-mist transition-colors hover:border-saffron"
+          >
+            <UserIcon />
+          </Link>
         </div>
 
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="relative grid size-11 shrink-0 place-items-center rounded-full border border-steel hover:border-saffron"
+          className="relative grid size-10 shrink-0 place-items-center rounded-full border sm:size-11 border-steel hover:border-saffron"
           aria-label={L(`السلة، ${count} منتج`, `Cart, ${count} items`)}
         >
           <BagIcon />
